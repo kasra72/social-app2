@@ -10,20 +10,17 @@ import UIKit
 import FBSDKCoreKit
 import FBSDKLoginKit
 import Firebase
+import SwiftKeychainWrapper
 
 class SignInVC: UIViewController {
-
     @IBOutlet weak var passField: textField!
     @IBOutlet weak var UserField: textField!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view, typically from a nib.
     }
 
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
-    }
+    
 
     @IBAction func FacebookBtnPressed(_ sender: Any) {
         let facebookLogin = FBSDKLoginManager()
@@ -32,40 +29,42 @@ class SignInVC: UIViewController {
             if error != nil {
                 print("unable to Auth with facebook")
             }else if result?.isCancelled == true {
-                print("user cancelled Auth with FB")
+                print("kas:user cancelled Auth with FB")
             }else {
-                print("successfully Auth with FB")
+                print("kas:successfully Auth with FB")
                 let credential = FacebookAuthProvider.credential(withAccessToken: FBSDKAccessToken.current().tokenString)
                 self.FirebaseAuth(credential)
             }
         }
     }
+    
+    
     func FirebaseAuth(_ credential:AuthCredential){
         Auth.auth().signIn(with: credential,completion : { (user, error) in
             if error != nil{
-                print("unable to Auth with Firebase")
+                print("kas:unable to Auth with Firebase:\(error)")
             }else{
-                print("successfully Auth With Firebase")
+                print("kas:successfully Auth With Firebase")
             }
         })
     }
+    
     
     @IBAction func SignInTapped(_ sender: Any) {
         if let email = UserField.text , let pass = passField.text {
             Auth.auth().signIn(withEmail: email, password: pass, completion: { (user,error ) in
                 if error == nil {
-                    print("successfuly user email Auth")
+                    print("kas:suceesfully auth with firebase44")
                 }else{
                     Auth.auth().createUser(withEmail: email, password: pass, completion: { (user, error) in
                         if error != nil {
-                            print("unable to auth with firebase")
+                            print("kas:unable to auth with firebase")
                         }else{
-                            print("suceesfully auth with firebase")
-
+                            print("kas:successfuly user email Auth")
+                            self.performSegue(withIdentifier: "goto", sender: self)
                         }
                     })
                 }
-                
             })
         }
     }
